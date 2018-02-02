@@ -9,6 +9,8 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
+const headerLines = 3
+
 type Note struct {
 	ID        string
 	Title     string `yaml:"title"`
@@ -34,8 +36,8 @@ func NewNote(user, title, tags, body string) *Note {
 
 func NewNoteFromString(s string) (*Note, error) {
 	l := strings.Split(s, "\n")
-	header := strings.Join(l[1:4], "\n")
-	body := strings.Join(l[5:], "\n")
+	header := strings.Join(l[1:1+headerLines], "\n")
+	body := strings.Join(l[2+headerLines:], "\n")
 
 	n := &Note{}
 	err := yaml.Unmarshal([]byte(header), n)
