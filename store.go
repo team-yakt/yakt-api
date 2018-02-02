@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 )
 
 type Store interface {
@@ -27,10 +27,12 @@ func (s *FileStore) ListNotes() ([]Note, error) {
 	if err != nil {
 		return nil, err
 	}
+	sort.Slice(files, func(i, j int) bool {
+		return files[i].ModTime().Unix() > files[j].ModTime().Unix()
+	})
 	for _, f := range files {
 		note, _ := s.ReadNote(f.Name())
 		notes = append(notes, *note)
-		fmt.Println(filepath.Join(s.Dir, f.Name()))
 	}
 	return notes, nil
 }
