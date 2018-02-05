@@ -6,8 +6,9 @@ import (
 )
 
 func main() {
-	store := NewFileStore("markdown")
-	data := NewData(store)
+	store := NewStormStore("markdown")
+	search := NewBleveSearch("bleve")
+	data := NewData(store, search)
 
 	log.Fatal(http.ListenAndServe(":2020", Routes(data)))
 }

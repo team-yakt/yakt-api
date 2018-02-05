@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -17,16 +17,16 @@ func Routes(d *Data) chi.Router {
 	r.Use(middleware.Timeout(30 * time.Second))
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(`<a href="/new">new</a></br><pre>`))
-
+		w.Write([]byte(`<a href="/new">new</a>`))
+		w.Write([]byte(`<form action="/search/" method="get"><input type="text" name="q"/>
+    <input type="submit" value="search" /><pre>`))
 		ns, err := d.Store.ListNotes()
 		if err != nil {
-			w.WriteHeader(500)
+			RenderErrorHTML(w, r, err)
 			return
 		}
-		for _, n := range ns {
-			w.Write([]byte(n.String()))
-		}
+		RenderNotesHTML(w, r, ns)
+
 		w.Write([]byte(`</pre>`))
 	})
 
@@ -46,13 +46,13 @@ func Routes(d *Data) chi.Router {
 
 	r.Get("/note/{id}", func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
-		fmt.Println(id)
+
 		n, err := d.Store.ReadNote(id)
 		if err != nil {
-			w.WriteHeader(500)
+			RenderErrorHTML(w, r, err)
 			return
 		}
-		w.Write([]byte(n.String()))
+		RenderNoteHTML(w, r, n)
 	})
 
 	r.Post("/note", func(w http.ResponseWriter, r *http.Request) {
@@ -71,11 +71,39 @@ func Routes(d *Data) chi.Router {
 
 		err := d.Store.WriteNote(n)
 		if err != nil {
-			w.WriteHeader(500)
+			RenderErrorHTML(w, r, err)
 			return
+		}
+		err = d.Search.Index(n)
+		if err != nil {
+			log.Println("Index failed -", err.Error())
 		}
 
 		http.Redirect(w, r, "/", http.StatusFound)
 	})
+
+	r.Get("/search/", func(w http.ResponseWriter, r *http.Request) {
+		r.ParseForm()
+		q := r.Form["q"][0]
+		log.Println("performing query q =", q)
+		ids, err := d.Search.Query(q)
+		if err != nil {
+			RenderErrorHTML(w, r, err)
+			return
+		}
+		for _, id := range ids {
+			log.Println("serch res id =", id)
+			n, err := d.Store.ReadNote(id)
+			if err != nil {
+				RenderErrorHTML(w, r, err)
+				return
+			}
+			RenderNoteHTML(w, r, n)
+		}
+		if len(ids) == 0 {
+			w.Write([]byte(`no search result`))
+		}
+	})
+
 	return r
 }

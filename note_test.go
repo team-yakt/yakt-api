@@ -39,8 +39,8 @@ func ExampleNoteFilename() {
 	note := NewNote("user", "title", "tags", "body")
 	note.ID = "123456"
 	note.CreatedAt = time.Date(2014, time.December, 31, 12, 13, 24, 0, time.UTC)
-	fmt.Println(note.Filename())
-	// Output: 2014-12-31-user-123456.md
+	fmt.Println(Filename(note))
+	// Output: 20141231-user-123456.md
 }
 
 func ExampleNewID() {

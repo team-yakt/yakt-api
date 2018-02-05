@@ -2,6 +2,7 @@ package main
 
 import (
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -33,6 +34,7 @@ func (s *FileStore) ListNotes() ([]Note, error) {
 
 func (s *FileStore) ReadNote(filename string) (*Note, error) {
 	path := filepath.Join(s.Dir, filename)
+	log.Println("filestore: ReadNote -", filename)
 	b, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
@@ -41,6 +43,6 @@ func (s *FileStore) ReadNote(filename string) (*Note, error) {
 }
 
 func (s *FileStore) WriteNote(n *Note) error {
-	path := filepath.Join(s.Dir, n.Filename())
+	path := filepath.Join(s.Dir, n.Filename)
 	return ioutil.WriteFile(path, []byte(n.String()), os.ModePerm)
 }

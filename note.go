@@ -12,13 +12,14 @@ import (
 const headerLines = 3
 
 type Note struct {
-	ID        string
+	ID        string `storm:"unique"`
+	Filename  string `storm:"unique"`
 	Title     string `yaml:"title"`
 	Tags      string `yaml:"tags"`
 	Body      string
-	User      string    `yaml:"user"`
-	CreatedAt time.Time `yaml:"created"`
-	UpdatedAt time.Time `yaml:"updated"`
+	User      string    `yaml:"user" storm:"index"`
+	CreatedAt time.Time `yaml:"created" storm:"index"`
+	UpdatedAt time.Time `yaml:"updated" nstorm:"index"`
 }
 
 func NewNote(user, title, tags, body string) *Note {
@@ -30,7 +31,7 @@ func NewNote(user, title, tags, body string) *Note {
 	n.Title = title
 	n.Tags = tags
 	n.Body = body
-
+	n.Filename = Filename(n)
 	return n
 }
 
@@ -53,8 +54,8 @@ func NewID(t time.Time) string {
 	return base62.EncodeInt64(int64(i))
 }
 
-func (n *Note) Filename() string {
-	return fmt.Sprintf("%v-%v-%v.md", n.CreatedAt.Local().Format("2006-01-02"), n.User, n.ID)
+func Filename(n *Note) string {
+	return fmt.Sprintf("%v-%v-%v.md", n.CreatedAt.Local().Format("20060102"), n.User, n.ID)
 }
 
 func (n *Note) String() string {

@@ -1,9 +1,10 @@
 package main
 
 type Data struct {
-	Store Store
+	Store  Storer
+	Search Searcher
 }
 
-func NewData(s Store) *Data {
-	return &Data{s}
+func NewData(store Storer, search Searcher) *Data {
+	return &Data{store, search}
 }
