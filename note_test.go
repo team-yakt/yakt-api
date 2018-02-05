@@ -35,18 +35,6 @@ body`
 	// body
 }
 
-func ExampleNewNoteStringError() {
-	s := `---
-title: :::title
-tags: tags:::
-user: :::user
----
-body`
-	_, err := NewNoteFromString(s)
-	fmt.Println(err.Error())
-	// Output: yaml: line 1: mapping values are not allowed in this context
-}
-
 func ExampleNoteFilename() {
 	note := NewNote("user", "title", "tags", "body")
 	note.ID = "123456"

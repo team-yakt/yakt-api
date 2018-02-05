@@ -7,12 +7,6 @@ import (
 	"sort"
 )
 
-type Store interface {
-	ListNotes() ([]Note, error)
-	ReadNote(id string) (*Note, error)
-	WriteNote(n *Note) error
-}
-
 type FileStore struct {
 	Dir string
 }
